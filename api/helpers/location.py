@@ -10,12 +10,11 @@ def get_current_datetime() -> str:
 
 def get_coordinates(location: str) -> tuple:
     """Get coordinates based on user input location."""
-    # geolocator = Nominatim(user_agent="stargazing_app")
-    # loc = geolocator.geocode(location)
-    # if not loc:
-    #     raise ValueError(f"Location '{location}' not found.")
-    # return loc.latitude, loc.longitude
-    return ()
+    geolocator = Nominatim(user_agent="stargazing_app")
+    loc = geolocator.geocode(location)
+    if not loc:
+        raise ValueError(f"Location '{location}' not found.")
+    return loc.latitude, loc.longitude
 
 
 def get_location_from_ip() -> dict:

@@ -5,6 +5,7 @@ requests
 langchain
 langchain-community
 langchain-core
+langchain-openai
 dateparser
 openai
 pytz
