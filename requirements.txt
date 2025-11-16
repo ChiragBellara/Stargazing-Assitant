@@ -2,10 +2,9 @@ numpy
 pandas
 matplotlib
 requests
-langchain
+langchain[openai, anthropic, mistralai, google-gemini]
 langchain-community
 langchain-core
-langchain-openai
 dateparser
 openai
 pytz
@@ -13,4 +12,4 @@ astral
 geopy
 skyfield
 streamlit
-dotenv
+python-dotenv
