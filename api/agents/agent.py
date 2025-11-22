@@ -1,44 +1,31 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from agents.prompt import SYSTEM_PROMPT
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from agents.history import get_chat_history
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
 from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
+from langgraph.checkpoint.memory import InMemorySaver
+from langchain_core.runnables.config import RunnableConfig
+
+from agents.prompt import SYSTEM_PROMPT
 from agents.tools import fetch_weather
 
-load_dotenv(override=True)
+load_dotenv()
 
-# Get the OPENAI_API_KEY
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+MODEL_NAME = 'gpt-4o-mini'
+TEMPERATURE = float(os.getenv("TEMPERATURE", 0.0))
 
 
 def create_stars_agent():
     """Create the Stars agent with Streamlit-integrated memory"""
+    model = init_chat_model(MODEL_NAME, temperature=TEMPERATURE)
+    checkpointer = InMemorySaver()
 
-    try:
-        llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            temperature=0.7,
-            timeout=60,
-            max_retries=2
-        )
+    agent = create_agent(
+        model=model,
+        tools=[fetch_weather],
+        system_prompt=SYSTEM_PROMPT,
+        checkpointer=checkpointer
+    )
 
-        tools = [fetch_weather]
-
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", SYSTEM_PROMPT),
-            # where memory will be injected
-            MessagesPlaceholder("chat_history"),
-            ("human", "{input}"),
-            # where tool thoughts/actions go
-            MessagesPlaceholder("agent_scratchpad"),
-        ])
-
-        agent = create_agent(llm, tools=tools, system_prompt=SYSTEM_PROMPT)
-
-    except Exception as e:
-        st.error(f"Failed to create agent: {str(e)}")
-        return None
+    return agent
